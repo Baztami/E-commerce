@@ -2,13 +2,22 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\UserRepository;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints as Assert;
+ 
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @UniqueEntity(
+ *  fields={"email"}
+ * )
  */
-class User
+class User implements UserInterface
 {
     /**
      * @ORM\Id
@@ -24,16 +33,24 @@ class User
 
     /**
      * @ORM\Column(type="string", length=255)
+     * 
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Length(min="8",minMessage="votre mot de passe doit faire 8 carateres au minimum")
+     * @Assert\EqualTo(propertyPath="confirm_password", message="vos mot de passes doivent etre similaire ")
      */
     private $password;
 
+    /**
+     * Undocumented variable
+     *
+     * @Assert\EqualTo(propertyPath="password", message="vos mot de passes doivent etre similaire " )
+     */
     public $confirm_password;
-    
+
 
 
     public function getId(): ?int
@@ -75,5 +92,21 @@ class User
         $this->password = $password;
 
         return $this;
+    }
+    public function eraseCredentials()
+    {
+    
+    }
+    public function getSalt()
+    {
+        
+    }
+    public function getRoles()
+    {
+        return ['ROLE_USER'];
+
+    }
+    public function getUserIdentifier(){
+
     }
 }
